@@ -61,7 +61,7 @@ var bearing_gauge = new RadialGauge({
 	startAngle: 180,
 	strokeTicks: false,
 	highlights: false,
-	colorPlate: "transparent",
+	colorPlate: "#1a1a1a",
 	colorMajorTicks: "#f5f5f5",
 	colorMinorTicks: "#ddd",
 	colorNumbers: "#ccc",
@@ -117,7 +117,7 @@ var big_altitude = new RadialGauge({
 	startAngle: 180,
 	strokeTicks: false,
 	highlights: false,
-	colorPlate: "transparent",
+	colorPlate: "#1a1a1a",
 	colorMajorTicks: "#f5f5f5",
 	colorMinorTicks: "#ddd",
 	colorNumbers: "#ccc",
@@ -239,7 +239,7 @@ var speed_gauge = new RadialGauge({
         { from: 163, to: 165, color: "rgba(220,  40,  40, 0.95)" },
         { from: 163, to: 220, color: "rgba(220,  40,  40, 0.5)"  }
     ],
-    colorPlate: "transparent",
+    colorPlate: "#1a1a1a",
     needleType: "arrow",
 		colorNeedle: "white",
 		colorNeedleEnd: "white",
@@ -303,7 +303,7 @@ var vsi_gauge = new RadialGauge({
         { from: -20, to: -15, color: "rgba(200, 50, 50, .75)" },
         { from:  15, to:  20, color: "rgba(200, 50, 50, .75)" }
     ],
-    colorPlate: "transparent",
+    colorPlate: "#1a1a1a",
     needleType: "arrow",
     colorNeedle: "white",
     colorNeedleEnd: "white",
@@ -350,20 +350,19 @@ var turn_coordinator = (function() {
     var bank = 0;   // degrees of bank, set via .value setter
 
     function draw() {
-        // Fully transparent canvas to start; only the circular face
-        // gets painted. Outside the circle stays clear so the map
-        // shows through (no rectangular dark plate behind the dial).
+        // Clear first so resize/redraw doesn't ghost, then paint an
+        // opaque matte-black CIRCULAR dial face (real-Cessna look) so
+        // tick marks and the airplane silhouette stay legible against
+        // the satellite map. Outside the circle stays clear so the map
+        // shows through and remains pannable in the gaps. Clip to the
+        // face so subsequent draws can't bleed onto the map.
         ctx.clearRect(0, 0, W, H);
         ctx.save();
-
-        // Circular dial face + bezel
         ctx.beginPath();
         ctx.arc(cx, cy, R, 0, 2 * Math.PI);
-        ctx.fillStyle = "#0a0a0a";
+        ctx.fillStyle = "#1a1a1a";
         ctx.fill();
-        ctx.strokeStyle = "#666";
-        ctx.lineWidth = 5;
-        ctx.stroke();
+        ctx.clip();
 
         // Title text
         ctx.fillStyle = "white";
@@ -467,15 +466,20 @@ var attitude_indicator = (function() {
     var PIX_PER_DEG = R / 35;   // 35° of pitch fills the half-instrument
 
     function draw() {
-        // Start with a fully transparent canvas; only the circular
-        // instrument face gets painted. Everything outside the circle
-        // stays clear so the map shows through.
+        // Clear first so resize/redraw doesn't ghost, then paint an
+        // opaque matte-black CIRCULAR dial face under the sky/ground
+        // wedges. The wedges fully cover the face during normal
+        // operation, but the explicit fill is defensive (e.g. if the
+        // pitch translate ever leaves a sliver uncovered) and keeps
+        // this canvas visually identical to the RadialGauge plates.
+        // Everything outside the circle stays clear so the map shows
+        // through and remains pannable in the gaps between gauges.
         ctx.clearRect(0, 0, W, H);
         ctx.save();
-
-        // Clip to circular instrument face
         ctx.beginPath();
         ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+        ctx.fillStyle = "#1a1a1a";
+        ctx.fill();
         ctx.clip();
 
         // Rotate the world for roll, then translate for pitch
