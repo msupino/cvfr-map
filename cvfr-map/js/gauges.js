@@ -16,7 +16,7 @@ function openCloseGaugesWindow(button){
 L.Control.Gauges = L.Control.extend({
 	onAdd: function(map) {
 		var div = L.DomUtil.create('div');
-		div.classList.add("gauges-div", "leaflet-control");
+		div.classList.add("gauges-div", "leaflet-bar", "leaflet-control");
 		div.innerHTML = document.querySelector(".gauges-div").innerHTML;
 		document.querySelector(".gauges-div").remove();
 		return div;
@@ -282,11 +282,14 @@ var speed_gauge = new RadialGauge({
 // ±2000 fpm displayed as ±20 (units of 100 fpm). The right half of the
 // dial is unmarked (matches a real pneumatic VSI face).
 //
-// canvas-gauges geometry: angles are clockwise from 12 o'clock. To put
-// -20 at 6 o'clock and sweep clockwise (6 -> 9 -> 12) up to +20:
-//   startAngle = 180   (6 o'clock = where min value sits)
+// canvas-gauges geometry: startAngle is measured clockwise from
+// 6 o'clock (verified empirically via the altimeter, where
+// startAngle=180 puts the "0" tick at 12 o'clock). To put -20 at
+// 6 o'clock and sweep clockwise via 9 o'clock to +20 at 12:
+//   startAngle = 0     (6 o'clock = where min value sits)
 //   ticksAngle = 180   (180-degree arc, ending at 12 o'clock)
-// The 9-tick array places "0" at the midpoint = 9 o'clock = horizontal.
+// The 9-tick array places "0" at the midpoint = 9 o'clock = horizontal
+// (climb above, descent below - matches a real Cessna pneumatic VSI).
 var vsi_gauge = new RadialGauge({
     renderTo: 'vsi_gauge',
     height: 170,
@@ -298,7 +301,7 @@ var vsi_gauge = new RadialGauge({
     minorTicks: 5,
     strokeTicks: true,
     ticksAngle: 180,
-    startAngle: 180,
+    startAngle: 0,
     highlights: [
         { from: -20, to: -15, color: "rgba(200, 50, 50, .75)" },
         { from:  15, to:  20, color: "rgba(200, 50, 50, .75)" }
