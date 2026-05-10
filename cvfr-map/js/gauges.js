@@ -16,7 +16,7 @@ function openCloseGaugesWindow(button){
 L.Control.Gauges = L.Control.extend({
 	onAdd: function(map) {
 		var div = L.DomUtil.create('div');
-		div.classList.add("gauges-div", "leaflet-bar", "leaflet-control");
+		div.classList.add("gauges-div", "leaflet-control");
 		div.innerHTML = document.querySelector(".gauges-div").innerHTML;
 		document.querySelector(".gauges-div").remove();
 		return div;
