@@ -51,18 +51,38 @@ document.getElementById("user-aircraft").addEventListener("click", function() {
 function getAirplaneFromSim() {
 	var con = new XMLHttpRequest();
 	con.onreadystatechange = function() {
-		if (con.readyState == XMLHttpRequest.DONE) {
-			try {
-				console.log(con.responseText);
-				let data = JSON.parse(con.responseText);
-				setAircraftData(data);
-			} catch (e) {
-				console.log(e);
-			}
+		if (con.readyState !== XMLHttpRequest.DONE) return;
+		// Network errors (ERR_CONNECTION_REFUSED, host unreachable, CORS,
+		// etc) reach DONE with status === 0; HTTP errors arrive as
+		// status >= 400. Either case means we have no live sim data and
+		// the SIM LED should go grey.
+		if (con.status !== 200) { markSimDown(); return; }
+		try {
+			let data = JSON.parse(con.responseText);
+			setAircraftData(data);
+		} catch (e) {
+			console.log(e);
+			markSimDown();
 		}
-	}
+	};
+	con.onerror = markSimDown;
+	con.ontimeout = markSimDown;
+	con.timeout = 2000;
 	con.open('GET', simURL, true);
 	con.send();
+}
+
+// Single source of truth for "sim is down" UI state. Called from the XHR
+// failure paths above and from the user-aircraft toggle when it's turned
+// off. Intentionally only touches the LED + tooltip - we leave the gauges
+// frozen on their last value rather than zeroing them, so a momentary
+// blip doesn't make the whole panel flap.
+function markSimDown() {
+	var led = document.getElementById("sim_status");
+	if (!led) return;
+	led.classList.remove("sim-status-on");
+	led.classList.add("sim-status-off");
+	led.title = "Sim disconnected";
 }
 
 function setAircraftData(data) {
