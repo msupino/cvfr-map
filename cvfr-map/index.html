@@ -33,18 +33,48 @@
 
 <body>
 
+  <!--
+    Cessna six-pack instrument panel.
+
+    Row 1: airspeed | attitude | altimeter
+    Row 2: turn coord | heading | vertical speed
+
+    Schema fields consumed (see github.com/msupino/cvfr-bridge schema.json):
+      ias            -> ASI (#speedometer)
+      pitch + roll   -> AI  (#attitude_indicator, custom canvas)
+      altitude       -> ALT (#big_altitude + #small_altitude)
+      qnh            -> ALT Kollsman window (overlay #qnh_kollsman)
+      roll           -> TC  (#turn_coordinator, derived rate-of-turn)
+      heading        -> HI  (#bearing)
+      variation      -> HI corner readout (#variation_text)
+      vsi            -> VSI (#vsi_gauge)
+      sim_ready      -> #sim_status LED in the gauges-div header
+  -->
   <div class="gauges-div">
-    <div class="gauge">
-      <canvas id="speedometer"></canvas>
+    <div class="gauges-status-bar">
+      <span id="sim_status" class="sim-status sim-status-off" title="Sim connection">●</span>
+      <span class="sim-status-label">SIM</span>
     </div>
-    <div class="gauge">
-      <div class="wrapper">
-        <canvas id="big_altitude"></canvas>
-        <canvas id="small_altitude"></canvas>
+    <div class="gauges-row">
+      <div class="gauge"><canvas id="speedometer"></canvas></div>
+      <div class="gauge"><canvas id="attitude_indicator" width="200" height="170"></canvas></div>
+      <div class="gauge">
+        <div class="wrapper">
+          <canvas id="big_altitude"></canvas>
+          <canvas id="small_altitude"></canvas>
+          <span id="qnh_kollsman" class="kollsman">29.92</span>
+        </div>
       </div>
     </div>
-    <div class="gauge">
-      <canvas id="bearing"></canvas>
+    <div class="gauges-row">
+      <div class="gauge"><canvas id="vsi_gauge"></canvas></div>
+      <div class="gauge">
+        <div class="wrapper">
+          <canvas id="bearing"></canvas>
+          <span id="variation_text" class="variation-corner">VAR 4.7°E</span>
+        </div>
+      </div>
+      <div class="gauge"><canvas id="turn_coordinator"></canvas></div>
     </div>
   </div>
 

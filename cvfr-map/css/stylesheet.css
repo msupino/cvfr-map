@@ -455,14 +455,82 @@ input:checked+.slider:before {
   display: block;
 }
 
+/* Six-pack gauges container. The outer .gauges-div holds the status bar
+ * and two .gauges-row children that arrange three gauges horizontally.
+ * Background fully transparent so the map shows between/around the
+ * round dials; each canvas gauge draws its own dark plate so the dials
+ * themselves stay readable against any map background. */
 .gauges-div {
-  background-color: white;
-  padding: 5px;
+  background-color: transparent;
+  padding: 6px;
   display: none;
+  flex-direction: column;
+  gap: 4px;
+  border: none;
+  pointer-events: none;   /* let map pan/zoom through the gaps between gauges */
 }
+
+/* Re-enable interaction on the actual gauge canvases and the status bar
+ * (everything that's not transparent gap). */
+.gauges-row, .gauges-status-bar, .gauge { pointer-events: auto; }
 
 .gauges-div-show {
   display: flex;
+}
+
+.gauges-row {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+}
+
+.gauges-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+  font-family: monospace;
+  font-size: 11px;
+  color: #ccc;
+}
+
+/* Sim-connected LED next to "SIM" label in the status bar. */
+.sim-status {
+  font-size: 14px;
+  line-height: 1;
+}
+.sim-status-on  { color: #4ad04a; text-shadow: 0 0 4px #4ad04a; }
+.sim-status-off { color: #555; }
+.sim-status-label { letter-spacing: 1px; }
+
+/* Kollsman window inside the altimeter (QNH readout) - bottom-right corner */
+.gauge .wrapper { position: relative; }
+.kollsman {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  background: #000;
+  color: #ffcc00;
+  padding: 1px 5px;
+  font-family: monospace;
+  font-size: 11px;
+  border: 1px solid #444;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* Magnetic variation readout inside the heading indicator - bottom-right */
+.variation-corner {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #ccc;
+  padding: 1px 5px;
+  font-family: monospace;
+  font-size: 10px;
+  border-radius: 2px;
+  pointer-events: none;
 }
 
 @media only screen and (max-width: 952px) {
@@ -472,6 +540,9 @@ input:checked+.slider:before {
 
   .gauges-div-show {
     display: flex;
+    flex-direction: column;
+  }
+  .gauges-row {
     flex-direction: column;
   }
 }
