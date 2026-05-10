@@ -87,8 +87,9 @@ function setAircraftData(data) {
 	// Each setter is guarded against missing fields so the page degrades
 	// gracefully if it's pointed at an old-schema bridge.
 	if (typeof data.vsi === "number" && typeof vsi_gauge !== "undefined") {
-		// VSI gauge is calibrated in hundreds of fpm (ticks 0..20 = 0..2000)
-		vsi_gauge.value = Math.max(-20, Math.min(20, data.vsi / 100));
+		// VSI gauge is now calibrated in raw fpm (ticks 0..2000 with
+		// labels showing thousands), so just pass through and clamp.
+		vsi_gauge.value = Math.max(-2000, Math.min(2000, data.vsi));
 	}
 	if (typeof data.roll === "number" && typeof turn_coordinator !== "undefined") {
 		// New custom-canvas TC takes raw bank degrees (positive = right wing

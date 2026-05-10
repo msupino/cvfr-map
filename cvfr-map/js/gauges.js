@@ -276,36 +276,38 @@ var speed_gauge = new RadialGauge({
 // =============================================================================
 
 // --- Vertical Speed Indicator ----------------------------------------------
-// Real-Cessna VSI layout: 0 fpm sits at the 9 o'clock position (horizontal
-// needle pointing LEFT at level flight), climb numbers wrap upward through
-// 12 o'clock, descent numbers wrap downward through 6 o'clock. Range is
-// ±2000 fpm displayed as ±20 (units of 100 fpm). The right half of the
-// dial is unmarked (matches a real pneumatic VSI face).
+// Real-Cessna VSI layout (matches the Cessna 172 panel photo):
+//   - Full 360-degree dial, scale in THOUSANDS of fpm (0, .5, 1, 1.5, 2)
+//   - 0 sits at 9 o'clock (horizontal needle pointing LEFT = level flight)
+//   - Climb wraps UPWARD through the upper half: 9 -> 10:30 (.5) ->
+//     12 (1) -> 1:30 (1.5) -> 3 o'clock (2 = max climb 2000 fpm)
+//   - Descent wraps DOWNWARD through the lower half: 9 -> 7:30 (.5) ->
+//     6 (1) -> 4:30 (1.5) -> 3 o'clock (2 = max descent 2000 fpm)
+//   - The two "2" labels physically meet at 3 o'clock (the gauge tube's
+//     stop), which is exactly the look on the real instrument.
 //
-// canvas-gauges geometry: startAngle is measured clockwise from
-// 6 o'clock (verified empirically via the altimeter, where
-// startAngle=180 puts the "0" tick at 12 o'clock). To put -20 at
-// 6 o'clock and sweep clockwise via 9 o'clock to +20 at 12:
-//   startAngle = 0     (6 o'clock = where min value sits)
-//   ticksAngle = 180   (180-degree arc, ending at 12 o'clock)
-// The 9-tick array places "0" at the midpoint = 9 o'clock = horizontal
-// (climb above, descent below - matches a real Cessna pneumatic VSI).
+// canvas-gauges geometry: startAngle is measured clockwise from 6 o'clock
+// (verified empirically: the altimeter's startAngle=180 puts its "0" tick
+// at 12 o'clock = 180 deg CW from 6). For full-circle VSI starting at the
+// 3 o'clock right-side stop and sweeping CW through 6/9/12 back to 3:
+//   startAngle = 270   (3 o'clock = right-side stop, where the +/-2000 meet)
+//   ticksAngle = 360   (full revolution back to 3 o'clock)
+// 9 evenly-spaced major ticks then land every 45 deg, putting 0 at the
+// midpoint = 9 o'clock. We pass raw fpm values straight from the JSON
+// (simconnection.js no longer pre-divides), so minValue=-2000, maxValue=
+// 2000, and the tick labels are unsigned thousands like the real face.
 var vsi_gauge = new RadialGauge({
     renderTo: 'vsi_gauge',
     height: 170,
     width: 200,
-    units: "x100 fpm",
-    minValue: -20,
-    maxValue: 20,
-    majorTicks: ["-20","-15","-10","-5","0","5","10","15","20"],
+    units: "1000 ft/min",
+    minValue: -2000,
+    maxValue: 2000,
+    majorTicks: ["2","1.5","1","0.5","0","0.5","1","1.5","2"],
     minorTicks: 5,
     strokeTicks: true,
-    ticksAngle: 180,
-    startAngle: 0,
-    highlights: [
-        { from: -20, to: -15, color: "rgba(200, 50, 50, .75)" },
-        { from:  15, to:  20, color: "rgba(200, 50, 50, .75)" }
-    ],
+    ticksAngle: 360,
+    startAngle: 270,
     colorPlate: "#1a1a1a",
     needleType: "arrow",
     colorNeedle: "white",
@@ -323,8 +325,8 @@ var vsi_gauge = new RadialGauge({
     borderOuterWidth: 5,
     colorBorderOuter: "#666",
     colorBorderOuterEnd: "#444",
-    title: "VERT SPEED",
-    fontTitleSize: 16,
+    title: "VERTICAL SPEED",
+    fontTitleSize: 14,
     colorTitle: "white",
     valueBox: false
 }).draw();
